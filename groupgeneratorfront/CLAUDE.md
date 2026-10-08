@@ -24,10 +24,10 @@ Avant d'écrire du code Next.js, lire le guide concerné dans `node_modules/next
 
 ## API
 
-Le back (Bun + Hono + SQLite) vit dans `../back`. Le front l'appelle via `/api/*`, réécrit par `next.config.ts` vers `BACK_URL` (défaut `http://localhost:3001`).
+Le back (Bun + Hono + SQLite) vit dans `../back`. Le front l'appelle via `/api/*`, réécrit par `next.config.ts` vers `BACK_URL` (défaut `http://localhost:3000`, le port par défaut du back).
 
-- Back : `cd ../back && PORT=3001 bun run dev` (`bun run seed` pour les fixtures)
-- Front : `npm run dev`
+- Back : `cd ../back && bun run dev` (port 3000) (`bun run seed` pour les fixtures)
+- Front : `npm run dev` (Next passe tout seul sur 3001 car 3000 est pris)
 - Le contrat de référence est `../contract.yml`.
 
 - `GET /users` → `200 User[]`
