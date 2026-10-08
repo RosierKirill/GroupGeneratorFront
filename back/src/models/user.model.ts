@@ -1,6 +1,6 @@
 import { database } from '../database'
 import type { Skill } from '../entities'
-import type { UserWithSkills } from '../types/user'
+import type { UserInput, UserWithSkills } from '../types/user'
 
 interface UserSkillRow {
   id: number
@@ -25,6 +25,36 @@ const findAllQuery = database.query<UserSkillRow, []>(`
   ORDER BY u.id, s.id
 `)
 
+const insertUserQuery = database.query<{ id: number }, [string]>(
+  'INSERT INTO "User" (name) VALUES (?) RETURNING id',
+)
+
+const findSkillQuery = database.query<{ id: number }, [string, number]>(
+  'SELECT id FROM Skills WHERE name = ? AND value = ?',
+)
+
+const insertSkillQuery = database.query<{ id: number }, [string, number]>(
+  'INSERT INTO Skills (name, value) VALUES (?, ?) RETURNING id',
+)
+
+const insertUserSkillQuery = database.query<null, [number, number]>(
+  'INSERT INTO Userskills (userId, skillId) VALUES (?, ?)',
+)
+
+// Crée l'utilisateur et ses compétences ; une compétence (name, value) déjà existante est réutilisée
+const createTransaction = database.transaction((input: UserInput): UserWithSkills => {
+  const { id } = insertUserQuery.get(input.name)!
+
+  const skills = input.skills.map((skill) => {
+    const existing = findSkillQuery.get(skill.name, skill.value)
+    const skillId = existing?.id ?? insertSkillQuery.get(skill.name, skill.value)!.id
+    insertUserSkillQuery.run(id, skillId)
+    return { id: skillId, ...skill }
+  })
+
+  return { id, name: input.name, group: null, skills }
+})
+
 export const UserModel = {
   findAll: async (): Promise<UserWithSkills[]> => {
     const users = new Map<number, UserWithSkills>()
@@ -42,4 +72,6 @@ export const UserModel = {
 
     return [...users.values()]
   },
+
+  create: async (input: UserInput): Promise<UserWithSkills> => createTransaction(input),
 }
