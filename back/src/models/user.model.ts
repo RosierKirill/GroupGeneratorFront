@@ -1,4 +1,5 @@
 import { database } from '../database'
+import type { Skill } from '../entities'
 import type { UserInput, UserWithSkills } from '../types/user'
 
 interface UserSkillRow {
@@ -6,6 +7,8 @@ interface UserSkillRow {
   name: string
   group: number | null
   skillId: number | null
+  skillName: string | null
+  skillValue: Skill['value'] | null
 }
 
 const findAllQuery = database.query<UserSkillRow, []>(`
@@ -13,9 +16,12 @@ const findAllQuery = database.query<UserSkillRow, []>(`
     u.id,
     u.name,
     u."group"  AS "group",
-    us.skillId AS skillId
+    us.skillId AS skillId,
+    s.name     AS skillName,
+    s.value    AS skillValue
   FROM "User" u
   LEFT JOIN Userskills us ON us.userId = u.id
+  LEFT JOIN Skills s ON s.id = us.skillId
   ORDER BY u.id, us.skillId
 `)
 
@@ -23,8 +29,8 @@ const insertUserQuery = database.query<{ id: number }, [string]>(
   'INSERT INTO "User" (name) VALUES (?) RETURNING id',
 )
 
-const findSkillQuery = database.query<{ id: number }, [number]>(
-  'SELECT id FROM Skills WHERE id = ?',
+const findSkillQuery = database.query<Skill, [number]>(
+  'SELECT id, name, value FROM Skills WHERE id = ?',
 )
 
 const insertUserSkillQuery = database.query<null, [number, number]>(
@@ -37,7 +43,7 @@ const createTransaction = database.transaction((input: UserInput): UserWithSkill
 
   const skills = input.skills.map(({ skillId }) => {
     insertUserSkillQuery.run(id, skillId)
-    return { userId: id, skillId }
+    return findSkillQuery.get(skillId)!
   })
 
   return { id, name: input.name, group: null, skills }
@@ -53,8 +59,16 @@ export const UserModel = {
         user = { id: row.id, name: row.name, group: row.group, skills: [] }
         users.set(row.id, user)
       }
-      if (row.skillId !== null) {
-        user.skills.push({ userId: row.id, skillId: row.skillId })
+      if (
+        row.skillId !== null &&
+        row.skillName !== null &&
+        row.skillValue !== null
+      ) {
+        user.skills.push({
+          id: row.skillId,
+          name: row.skillName,
+          value: row.skillValue,
+        })
       }
     }
 
