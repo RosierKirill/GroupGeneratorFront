@@ -1,16 +1,9 @@
+import { SKILLS } from "./skills"
 import type { CreateGroupsInput, CreateUserInput, Group, User, UserSkillInput } from "./types"
 
 interface StoredUser extends User {
   skills: UserSkillInput[]
 }
-
-export const SKILLS = [
-  { id: 1, name: "Frontend" },
-  { id: 2, name: "Backend" },
-  { id: 3, name: "Design" },
-  { id: 4, name: "Gestion de projet" },
-  { id: 5, name: "Tests" },
-]
 
 const seed: [string, number[]][] = [
   ["Alice", [5, 2, 3, 1, 2]],
