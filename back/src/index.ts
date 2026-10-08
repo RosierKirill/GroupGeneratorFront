@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import './database'
 
 const app = new Hono()
 
