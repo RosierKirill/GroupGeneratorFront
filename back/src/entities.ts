@@ -1,7 +1,7 @@
 export interface User {
   id: number
   name: string
-  group: number
+  group: number | null
 }
 
 export interface Skill {
