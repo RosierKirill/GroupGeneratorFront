@@ -93,13 +93,14 @@ components:
       properties:
         id: { type: integer }
         name: { type: string }
+        value: { type: integer, minimum: 1, maximum: 5 }
 
     UserSkill:
       type: object
       required: [skillId, value]
       properties:
+        userId: { type: integer }
         skillId: { type: integer }
-        value: { type: integer, minimum: 0, maximum: 5 }
 
     User:
       type: object
