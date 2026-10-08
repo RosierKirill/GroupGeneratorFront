@@ -1,4 +1,5 @@
 import { database } from '../database'
+import type { Skill } from '../entities'
 import type { UserInput, UserWithSkills } from '../types/user'
 
 interface UserSkillRow {
@@ -6,6 +7,8 @@ interface UserSkillRow {
   name: string
   group: number | null
   skillId: number | null
+  skillName: string | null
+  skillValue: Skill['value'] | null
 }
 
 const findAllQuery = database.query<UserSkillRow, []>(`
@@ -13,9 +16,12 @@ const findAllQuery = database.query<UserSkillRow, []>(`
     u.id,
     u.name,
     u."group"  AS "group",
-    us.skillId AS skillId
+    us.skillId AS skillId,
+    s.name     AS skillName,
+    s.value    AS skillValue
   FROM "User" u
   LEFT JOIN Userskills us ON us.userId = u.id
+  LEFT JOIN Skills s      ON s.id = us.skillId
   ORDER BY u.id, us.skillId
 `)
 
@@ -32,15 +38,10 @@ const insertUserSkillQuery = database.query<null, [number, number]>(
 )
 
 // Crée l'utilisateur et ses liens vers des skills existants
-const createTransaction = database.transaction((input: UserInput): UserWithSkills => {
+const createTransaction = database.transaction((input: UserInput): number => {
   const { id } = insertUserQuery.get(input.name)!
-
-  const skills = input.skills.map(({ skillId }) => {
-    insertUserSkillQuery.run(id, skillId)
-    return { userId: id, skillId }
-  })
-
-  return { id, name: input.name, group: null, skills }
+  for (const { skillId } of input.skills) insertUserSkillQuery.run(id, skillId)
+  return id
 })
 
 export const UserModel = {
@@ -54,7 +55,12 @@ export const UserModel = {
         users.set(row.id, user)
       }
       if (row.skillId !== null) {
-        user.skills.push({ userId: row.id, skillId: row.skillId })
+        user.skills.push({
+          userId: row.id,
+          skillId: row.skillId,
+          name: row.skillName!,
+          value: row.skillValue!,
+        })
       }
     }
 
@@ -65,5 +71,9 @@ export const UserModel = {
   findMissingSkillIds: async (skillIds: number[]): Promise<number[]> =>
     skillIds.filter((skillId) => !findSkillQuery.get(skillId)),
 
-  create: async (input: UserInput): Promise<UserWithSkills> => createTransaction(input),
+  create: async (input: UserInput): Promise<UserWithSkills> => {
+    const id = createTransaction(input)
+    const users = await UserModel.findAll()
+    return users.find((user) => user.id === id)!
+  },
 }
