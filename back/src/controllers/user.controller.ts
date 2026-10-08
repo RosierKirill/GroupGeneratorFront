@@ -22,8 +22,9 @@ const validateUserInput = (body: any): string | null => {
     if (!Number.isInteger(skill.value) || skill.value < 1 || skill.value > 5) {
       return `La valeur du skill '${skill.name}' doit être un entier entre 1 et 5.`
     }
-    if (names.has(skill.name)) return `Le skill '${skill.name}' est en double.`
-    names.add(skill.name)
+    const name = skill.name.trim()
+    if (names.has(name)) return `Le skill '${name}' est en double.`
+    names.add(name)
   }
 
   return null
