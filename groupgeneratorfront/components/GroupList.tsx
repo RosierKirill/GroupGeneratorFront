@@ -1,10 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Alert, Avatar, Box, Button, Card, CardContent, CardHeader, List, ListItem, ListItemAvatar, ListItemText, Stack, TextField, Typography } from "@mui/material"
+import { Alert, Avatar, Box, Button, Card, CardContent, CardHeader, Divider, Stack, TextField, Typography } from "@mui/material"
 import ShuffleIcon from "@mui/icons-material/Shuffle"
 import { groupColor } from "@/lib/group-colors"
 import type { CreateGroupsInput, Group } from "@/lib/types"
+import SkillLevel from "./SkillLevel"
 
 interface Props {
   groups: Group[]
@@ -67,26 +68,44 @@ export default function GroupList({ groups, onGenerate }: Props) {
             Pas encore de groupes. Lance la génération.
           </Typography>
         ) : (
-          <Box sx={{ mt: 2, display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fill, minmax(220px, 1fr))" } }}>
-            {groups.map((group) => (
-              <Card key={group.id} variant="outlined">
-                <CardHeader
-                  avatar={<Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: groupColor(group.id) }} />}
-                  title={`Groupe ${group.id}`}
-                  slotProps={{ title: { variant: "subtitle1", fontWeight: 600 } }}
-                />
-                <List dense disablePadding sx={{ pb: 1 }}>
-                  {group.users.map((member) => (
-                    <ListItem key={member.id}>
-                      <ListItemAvatar sx={{ minWidth: 40 }}>
-                        <Avatar sx={{ width: 28, height: 28, fontSize: 13 }}>{member.name.charAt(0).toUpperCase()}</Avatar>
-                      </ListItemAvatar>
-                      <ListItemText primary={member.name} />
-                    </ListItem>
-                  ))}
-                </List>
-              </Card>
-            ))}
+          <Box sx={{ mt: 2, display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fill, minmax(260px, 1fr))" } }}>
+            {groups.map((group) => {
+              const color = groupColor(group.id)
+              return (
+                <Card
+                  key={group.id}
+                  variant="outlined"
+                  sx={{ borderTop: 4, borderTopColor: color, transition: "box-shadow 150ms ease-out", "&:hover": { boxShadow: 3 } }}
+                >
+                  <CardHeader
+                    title={`Groupe ${group.id}`}
+                    subheader={`${group.users.length} membre${group.users.length > 1 ? "s" : ""}`}
+                    slotProps={{ title: { variant: "subtitle1", fontWeight: 600 } }}
+                  />
+                  <CardContent sx={{ pt: 0, "&:last-child": { pb: 2 } }}>
+                    <Stack spacing={2} divider={<Divider flexItem />}>
+                      {group.users.map((member) => (
+                        <Box key={member.id}>
+                          <Stack direction="row" spacing={1.5} sx={{ mb: 1, alignItems: "center" }}>
+                            <Avatar sx={{ width: 28, height: 28, fontSize: 13, bgcolor: color, color: "#1b1b1f" }}>
+                              {member.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                            <Typography variant="body2" noWrap sx={{ fontWeight: 600 }}>
+                              {member.name}
+                            </Typography>
+                          </Stack>
+                          <Stack spacing={0.75}>
+                            {member.skills.map((skill) => (
+                              <SkillLevel key={skill.id} skill={skill} />
+                            ))}
+                          </Stack>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </Box>
         )}
       </CardContent>
