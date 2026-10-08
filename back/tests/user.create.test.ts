@@ -1,14 +1,10 @@
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import users from '../src/routes/user.routes'
 import { UserModel } from '../src/models/user.model'
 
-vi.mock('../src/models/user.model', () => ({
-  UserModel: { findAll: vi.fn(), create: vi.fn() },
-}))
-
 const app = new Hono().route('/users', users)
-const create = vi.mocked(UserModel.create)
+let create: ReturnType<typeof spyOn<any, any>>
 
 const post = (body: unknown) =>
   app.request('/users', {
@@ -19,7 +15,11 @@ const post = (body: unknown) =>
 
 describe('POST /users', () => {
   beforeEach(() => {
-    create.mockReset()
+    create = spyOn(UserModel as any, 'create')
+  })
+
+  afterEach(() => {
+    create.mockRestore()
   })
 
   it('returns 201 with the created user', async () => {

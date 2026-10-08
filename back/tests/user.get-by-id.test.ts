@@ -1,18 +1,18 @@
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { UserModel } from '../src/models/user.model'
 import users from '../src/routes/user.routes'
 
-vi.mock('../src/models/user.model', () => ({
-  UserModel: { findAll: vi.fn(), create: vi.fn(), findById: vi.fn() },
-}))
-
 const app = new Hono().route('/users', users)
-const findById = vi.mocked(UserModel.findById)
+let findById: ReturnType<typeof spyOn<any, any>>
 
 describe('GET /users/:id', () => {
   beforeEach(() => {
-    findById.mockReset()
+    findById = spyOn(UserModel as any, 'findById')
+  })
+
+  afterEach(() => {
+    findById.mockRestore()
   })
 
   it('returns 200 with the user and their skills', async () => {

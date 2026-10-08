@@ -1,18 +1,18 @@
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { GroupModel } from '../src/models/group.model'
 import groups from '../src/routes/group.routes'
 
-vi.mock('../src/models/group.model', () => ({
-  GroupModel: { findAll: vi.fn() },
-}))
-
 const app = new Hono().route('/groups', groups)
-const findAll = vi.mocked(GroupModel.findAll)
+let findAll: ReturnType<typeof spyOn<any, any>>
 
 describe('GET /groups', () => {
   beforeEach(() => {
-    findAll.mockReset()
+    findAll = spyOn(GroupModel as any, 'findAll')
+  })
+
+  afterEach(() => {
+    findAll.mockRestore()
   })
 
   it('returns 200 with groups and their users', async () => {

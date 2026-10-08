@@ -1,14 +1,10 @@
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, spyOn } from 'bun:test'
 import { GroupModel } from '../src/models/group.model'
 import groups from '../src/routes/group.routes'
 
-vi.mock('../src/models/group.model', () => ({
-  GroupModel: { findAll: vi.fn(), create: vi.fn() },
-}))
-
 const app = new Hono().route('/groups', groups)
-const create = vi.mocked(GroupModel.create)
+let create: ReturnType<typeof spyOn<any, any>>
 
 const post = (body: unknown) =>
   app.request('/groups', {
@@ -24,7 +20,11 @@ const generated = [
 
 describe('POST /groups', () => {
   beforeEach(() => {
-    create.mockReset()
+    create = spyOn(GroupModel as any, 'create')
+  })
+
+  afterEach(() => {
+    create.mockRestore()
   })
 
   it('returns 201 with the generated groups', async () => {
