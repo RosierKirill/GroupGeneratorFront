@@ -21,7 +21,7 @@ const findAllQuery = database.query<UserSkillRow, []>(`
     s.value    AS skillValue
   FROM "User" u
   LEFT JOIN Userskills us ON us.userId = u.id
-  LEFT JOIN Skills s ON s.id = us.skillId
+  LEFT JOIN Skills s      ON s.id = us.skillId
   ORDER BY u.id, us.skillId
 `)
 
@@ -38,7 +38,7 @@ const insertUserSkillQuery = database.query<null, [number, number]>(
 )
 
 // Crée l'utilisateur et ses liens vers des skills existants
-const createTransaction = database.transaction((input: UserInput): UserWithSkills => {
+const createTransaction = database.transaction((input: UserInput): number => {
   const { id } = insertUserQuery.get(input.name)!
 
   const skills = input.skills.map(({ skillId }) => {
@@ -79,5 +79,9 @@ export const UserModel = {
   findMissingSkillIds: async (skillIds: number[]): Promise<number[]> =>
     skillIds.filter((skillId) => !findSkillQuery.get(skillId)),
 
-  create: async (input: UserInput): Promise<UserWithSkills> => createTransaction(input),
+  create: async (input: UserInput): Promise<UserWithSkills> => {
+    const id = createTransaction(input)
+    const users = await UserModel.findAll()
+    return users.find((user) => user.id === id)!
+  },
 }
