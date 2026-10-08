@@ -5,7 +5,7 @@ import type { UserWithSkills } from '../types/user'
 interface UserSkillRow {
   id: number
   name: string
-  group: number
+  group: number | null
   skillId: number | null
   skillName: string | null
   skillValue: Skill['value'] | null
