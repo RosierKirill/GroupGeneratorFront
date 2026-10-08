@@ -1,9 +1,9 @@
 import { Rating, Stack, Typography } from "@mui/material"
-import type { Skill } from "@/lib/types"
+import type { UserSkill } from "@/lib/types"
 
 const LEVEL_COLORS = ["#e5645a", "#f2994a", "#f2c94c", "#8bc34a", "#3fb68b"]
 
-export default function SkillLevel({ skill }: { skill: Skill }) {
+export default function SkillLevel({ skill }: { skill: UserSkill }) {
   const color = LEVEL_COLORS[Math.min(Math.max(skill.value, 1), 5) - 1]
 
   return (

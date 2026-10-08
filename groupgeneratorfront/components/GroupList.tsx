@@ -96,7 +96,7 @@ export default function GroupList({ groups, onGenerate }: Props) {
                           </Stack>
                           <Stack spacing={0.75}>
                             {member.skills.map((skill) => (
-                              <SkillLevel key={skill.id} skill={skill} />
+                              <SkillLevel key={skill.skillId} skill={skill} />
                             ))}
                           </Stack>
                         </Box>

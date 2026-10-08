@@ -32,7 +32,7 @@ export default function UserList({ users }: { users: User[] }) {
                   <CardContent sx={{ pt: 0, "&:last-child": { pb: 2 } }}>
                     <Stack spacing={0.75}>
                       {user.skills.map((skill) => (
-                        <SkillLevel key={skill.id} skill={skill} />
+                        <SkillLevel key={skill.skillId} skill={skill} />
                       ))}
                     </Stack>
                   </CardContent>
