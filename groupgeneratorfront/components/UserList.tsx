@@ -16,7 +16,7 @@ export default function UserList({ users }: { users: User[] }) {
                 key={user.id}
                 disableGutters
                 secondaryAction={
-                  user.group > 0 ? (
+                  user.group !== null ? (
                     <Chip size="small" label={`Groupe ${user.group}`} sx={{ bgcolor: groupColor(user.group), color: "#1b1b1f" }} />
                   ) : null
                 }

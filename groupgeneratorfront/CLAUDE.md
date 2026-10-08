@@ -22,19 +22,23 @@ Avant d'écrire du code Next.js, lire le guide concerné dans `node_modules/next
 - Composants serveur par défaut, `"use client"` seulement si nécessaire.
 - Lancer `npm run lint` et `npm run build` avant chaque PR.
 
-## API et mock
+## API
 
-Le back n'est pas branché : `app/api/*` expose un mock en mémoire (`lib/mock-db.ts`) qui respecte le contrat.
+Le back (Bun + Hono + SQLite) vit dans `../back`. Le front l'appelle via `/api/*`, réécrit par `next.config.ts` vers `BACK_URL` (défaut `http://localhost:3001`).
+
+- Back : `cd ../back && PORT=3001 bun run dev` (`bun run seed` pour les fixtures)
+- Front : `npm run dev`
+- Le contrat de référence est `../contract.yml`.
 
 - `GET /users` → `200 User[]`
-- `POST /users` : `{ name, skills: [{ skillId, value: 0..5 }] }` (objet seul ou tableau) → `201`, `400` si body incomplet ou incorrect
+- `POST /users` : `{ name, skills }` → `201 User`, `400` si body incomplet ou incorrect
 - `GET /groups` → `200 Group[]`
-- `POST /groups` : `{ nb_group, nb_user? }` → `201 Group[]`, `400` si body incomplet
+- `POST /groups` : `{ nb_group, nb_user? }` → `201 Group[]`, `400` si body incomplet ou incorrect
 
 ```ts
-interface User { id: number; name: string; group: number }
-interface Group { id: number; members: User[] }
 interface Skill { id: number; name: string; value: 1 | 2 | 3 | 4 | 5 }
+interface User { id: number; name: string; group: number | null; skills: Skill[] }
+interface Group { id: number; users: User[] }
 ```
 
 ## Direction artistique : « Atelier »

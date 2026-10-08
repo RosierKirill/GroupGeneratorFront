@@ -76,7 +76,7 @@ export default function GroupList({ groups, onGenerate }: Props) {
                   slotProps={{ title: { variant: "subtitle1", fontWeight: 600 } }}
                 />
                 <List dense disablePadding sx={{ pb: 1 }}>
-                  {group.members.map((member) => (
+                  {group.users.map((member) => (
                     <ListItem key={member.id}>
                       <ListItemAvatar sx={{ minWidth: 40 }}>
                         <Avatar sx={{ width: 28, height: 28, fontSize: 13 }}>{member.name.charAt(0).toUpperCase()}</Avatar>
