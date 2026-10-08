@@ -1,7 +1,8 @@
 {
   "name": "back",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "seed": "bun run src/seed.ts"
   },
   "dependencies": {
     "hono": "^4.13.13"
