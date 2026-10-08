@@ -1,12 +1,3 @@
-export interface Skill {
-  id: number
-  name: string
-  value: number // 0 à 5
-}
+import type { Skill, User } from '../entities'
 
-export interface User {
-  id: number
-  name: string
-  group: number | null
-  skills: Skill[]
-}
+export type UserWithSkills = User & { skills: Skill[] }
