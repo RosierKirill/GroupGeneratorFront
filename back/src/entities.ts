@@ -13,11 +13,13 @@ export interface Skill {
 export interface UserSkill {
   userId: number
   skillId: number
+  name: string
+  value: Skill['value']
 }
 
 export interface Group {
   id: number
-  users: (User & { skills: Skill[] })[]
+  users: (User & { skills: UserSkill[] })[]
 }
 
 export interface CreateGroupsInput {
