@@ -1,5 +1,4 @@
 import type { Context } from 'hono'
-import type { Skill } from '../entities'
 import { UserModel } from '../models/user.model'
 import type { UserInput } from '../types/user'
 
@@ -14,17 +13,14 @@ const validateUserInput = (body: any): string | null => {
   if (typeof body.name !== 'string' || body.name.trim() === '') return "Le champ 'name' est requis."
   if (!Array.isArray(body.skills)) return "Le champ 'skills' doit être un tableau."
 
-  const names = new Set<string>()
+  const skillIds = new Set<number>()
   for (const skill of body.skills) {
-    if (typeof skill?.name !== 'string' || skill.name.trim() === '') {
-      return "Chaque skill doit avoir un 'name'."
-    }
+    if (!Number.isInteger(skill?.skillId)) return "Chaque skill doit avoir un 'skillId' entier."
     if (!Number.isInteger(skill.value) || skill.value < 1 || skill.value > 5) {
-      return `La valeur du skill '${skill.name}' doit être un entier entre 1 et 5.`
+      return `La valeur du skill ${skill.skillId} doit être un entier entre 1 et 5.`
     }
-    const name = skill.name.trim()
-    if (names.has(name)) return `Le skill '${name}' est en double.`
-    names.add(name)
+    if (skillIds.has(skill.skillId)) return `Le skill ${skill.skillId} est en double.`
+    skillIds.add(skill.skillId)
   }
 
   return null
@@ -38,10 +34,15 @@ export const createUser = async (c: Context) => {
 
   const input: UserInput = {
     name: body.name.trim(),
-    skills: body.skills.map((skill: Omit<Skill, 'id'>) => ({
-      name: skill.name.trim(),
+    skills: body.skills.map((skill: UserInput['skills'][number]) => ({
+      skillId: skill.skillId,
       value: skill.value,
     })),
+  }
+
+  const missing = await UserModel.findMissingSkillIds(input.skills.map((skill) => skill.skillId))
+  if (missing.length > 0) {
+    return c.json({ message: `Skill(s) introuvable(s) : ${missing.join(', ')}.` }, 400)
   }
 
   const user = await UserModel.create(input)
