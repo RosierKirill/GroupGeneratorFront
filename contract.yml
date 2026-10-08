@@ -101,6 +101,8 @@ components:
       properties:
         userId: { type: integer }
         skillId: { type: integer }
+        name: { type: string }
+        value: { type: integer, minimum: 1, maximum: 5 }
 
     User:
       type: object

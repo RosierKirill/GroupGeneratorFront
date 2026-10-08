@@ -4,11 +4,18 @@ export interface Skill {
   value: 1 | 2 | 3 | 4 | 5
 }
 
+export interface UserSkill {
+  userId: number
+  skillId: number
+  name: string
+  value: Skill['value']
+}
+
 export interface User {
   id: number
   name: string
   group: number | null
-  skills: Skill[]
+  skills: UserSkill[]
 }
 
 export interface Group {
