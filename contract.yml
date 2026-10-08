@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: API Groupes
+  version: 1.0.0
+
+paths:
+  /users:
+    get:
+      summary: Liste des users
+      responses:
+        "200":
+          description: Liste des users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      summary: Créer un user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: User créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Body incomplet ou incorrect
+
+  /users/{id}:
+    get:
+      summary: Un user par id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Le user demandé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User introuvable
+
+  /groups:
+    get:
+      summary: Liste des groupes
+      responses:
+        "200":
+          description: Liste des groupes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+    post:
+      summary: Générer les groupes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GroupCreate"
+      responses:
+        "201":
+          description: Groupes créés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Group"
+        "400":
+          description: Body incomplet ou incorrect
+
+components:
+  schemas:
+    Skill:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        value: { type: integer, minimum: 1, maximum: 5 }
+
+    UserSkill:
+      type: object
+      required: [skillId, value]
+      properties:
+        userId: { type: integer }
+        skillId: { type: integer }
+
+    User:
+      type: object
+      required: [id, name, skills]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        group: { type: integer, nullable: true }
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserSkill"
+
+    UserCreate:
+      type: object
+      required: [name, skills]
+      properties:
+        name: { type: string }
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserSkill"
+
+    Group:
+      type: object
+      required: [id, users]
+      properties:
+        id: { type: integer }
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+
+    GroupCreate:
+      type: object
+      required: [nb_group]
+      properties:
+        nb_group: { type: integer, minimum: 1 }
+        nb_user: { type: integer, minimum: 1 }
