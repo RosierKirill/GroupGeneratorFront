@@ -57,29 +57,8 @@ export const UserModel = {
         user.skills.push({ userId: row.id, skillId: row.skillId })
       }
     }
-    if (row.skillId !== null) {
-      user.skills.push({ id: row.skillId, name: row.skillName!, value: row.skillValue! })
-    }
-  }
-  return [...users.values()]
-}
 
-export const UserModel = {
-  findAll: async (): Promise<UserWithSkills[]> => toUsers(findAllQuery.all()),
-
-  findById: async (id: number): Promise<UserWithSkills | null> => toUsers(findByIdQuery.all(id))[0] ?? null,
-
-  create: async ({ name, skills }: CreateUserInput): Promise<UserWithSkills> => {
-    const userId = database.transaction(() => {
-      const { id } = insertUserQuery.get(name)!
-      for (const skill of skills) {
-        const { id: skillId } = insertSkillQuery.get(skill.name, skill.value)!
-        linkQuery.run(id, skillId)
-      }
-      return id
-    })()
-
-    return (await UserModel.findById(userId))!
+    return [...users.values()]
   },
 
   // Renvoie les ids qui n'existent pas dans la table Skills
