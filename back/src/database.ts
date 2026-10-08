@@ -8,7 +8,7 @@ database.run(`
   CREATE TABLE IF NOT EXISTS "User" (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    "group" INTEGER NOT NULL
+    "group" INTEGER
   )
 `)
 
