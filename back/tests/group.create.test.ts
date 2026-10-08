@@ -64,7 +64,7 @@ describe('POST /groups', () => {
       const res = await post(body)
 
       expect(res.status).toBe(400)
-      expect(await res.json()).toEqual({ message: expect.any(String) })
+      expect(await res.json()).toEqual({ error: expect.any(String) })
       expect(create).not.toHaveBeenCalled()
     })
   })
