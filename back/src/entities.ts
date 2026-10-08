@@ -14,3 +14,13 @@ export interface UserSkill {
   userId: number
   skillId: number
 }
+
+export interface Group {
+  id: number
+  users: (User & { skills: Skill[] })[]
+}
+
+export interface CreateGroupsInput {
+  nb_group: number
+  nb_user?: number
+}
