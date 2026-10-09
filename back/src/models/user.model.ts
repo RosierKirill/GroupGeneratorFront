@@ -29,8 +29,8 @@ const insertUserQuery = database.query<{ id: number }, [string]>(
   'INSERT INTO "User" (name) VALUES (?) RETURNING id',
 )
 
-const findSkillQuery = database.query<{ id: number }, [number]>(
-  'SELECT id FROM Skills WHERE id = ?',
+const findSkillQuery = database.query<Skill, [number]>(
+  'SELECT id, name, value FROM Skills WHERE id = ?',
 )
 
 const insertUserSkillQuery = database.query<null, [number, number]>(
@@ -40,8 +40,13 @@ const insertUserSkillQuery = database.query<null, [number, number]>(
 // Crée l'utilisateur et ses liens vers des skills existants
 const createTransaction = database.transaction((input: UserInput): number => {
   const { id } = insertUserQuery.get(input.name)!
-  for (const { skillId } of input.skills) insertUserSkillQuery.run(id, skillId)
-  return id
+
+  const skills = input.skills.map(({ skillId }) => {
+    insertUserSkillQuery.run(id, skillId)
+    return findSkillQuery.get(skillId)!
+  })
+
+  return { id, name: input.name, group: null, skills }
 })
 
 export const UserModel = {
@@ -54,12 +59,15 @@ export const UserModel = {
         user = { id: row.id, name: row.name, group: row.group, skills: [] }
         users.set(row.id, user)
       }
-      if (row.skillId !== null) {
+      if (
+        row.skillId !== null &&
+        row.skillName !== null &&
+        row.skillValue !== null
+      ) {
         user.skills.push({
-          userId: row.id,
-          skillId: row.skillId,
-          name: row.skillName!,
-          value: row.skillValue!,
+          id: row.skillId,
+          name: row.skillName,
+          value: row.skillValue,
         })
       }
     }

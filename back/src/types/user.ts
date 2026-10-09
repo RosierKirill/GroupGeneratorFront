@@ -1,6 +1,6 @@
-import type { User, UserSkill } from '../entities'
+import type { Skill, User } from '../entities'
 
-export type UserWithSkills = User & { skills: UserSkill[] }
+export type UserWithSkills = User & { skills: Skill[] }
 
 export interface UserInput {
   name: string
